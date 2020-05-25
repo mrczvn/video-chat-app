@@ -1,6 +1,7 @@
 import express, { Application } from 'express';
 import socketIO, { Server as SocketIOServer } from 'socket.io';
 import { createServer, Server as HTTPServer } from 'http';
+import path from 'path';
 
 export class App {
   private httpServer!: HTTPServer;
@@ -11,20 +12,25 @@ export class App {
 
   constructor() {
     this.initialize();
-
-    this.handleRoutes();
-    this.handleSocketConnection();
   }
 
   private initialize(): void {
     this.app = express();
     this.httpServer = createServer(this.app);
     this.io = socketIO(this.httpServer);
+
+    this.middleware();
+    this.handleRoutes();
+    this.handleSocketConnection();
+  }
+
+  private middleware(): void {
+    this.app.use(express.static(path.join(__dirname, '../public')));
   }
 
   private handleRoutes(): void {
     this.app.get('/', (req, res) => {
-      res.send(`<h1>Hello World</h1>`);
+      res.sendFile('index.html');
     });
   }
 
